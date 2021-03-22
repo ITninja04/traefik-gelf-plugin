@@ -15,7 +15,7 @@ services:
       - --providers.docker=true
       - --providers.docker.exposedbydefault=false
       - --experimental.plugins.gelflog.modulename=github.com/itninja04/traefik-gelf-plugin
-      - --experimental.plugins.gelflog.version=v0.1.6
+      - --experimental.plugins.gelflog.version=0.1.7
     ports:
       - 80:80
       - 8080:8080
@@ -31,10 +31,15 @@ services:
       traefik.http.routers.whoami.entrypoints: web
       traefik.http.middlewares.gelf-logger.plugin.gelflog.gelfEndpoint: "127.0.0.1"
       traefik.http.middlewares.gelf-logger.plugin.gelflog.gelfPort: 12202
+      # set the Hostname Override if you want to change the hostname sent to your GELF endpoint
       traefik.http.middlewares.gelf-logger.plugin.gelflog.hostnameOverride: ""
+      # default is true, set to false to stop sending a TraceId
       traefik.http.middlewares.gelf-logger.plugin.gelflog.emitTraceId: true
+      # default is X-TraceId-AV change this to whatever header name you want
       traefik.http.middlewares.gelf-logger.plugin.gelflog.traceIdHeader: "X-TraceId-AV"
+      # default is true, set to false to stop sending a Request Start timestamp
       traefik.http.middlewares.gelf-logger.plugin.gelflog.emitRequestStart: true
+      # default is X-Request-Start change this to whatever header name you want
       traefik.http.middlewares.gelf-logger.plugin.gelflog.requestStartTimeHeader: "X-Request-Start"
       traefik.http.routers.whoami.middlewares: gelf-logger
     networks:
@@ -49,9 +54,8 @@ To configure this plugin you should add its configuration to the Traefik dynamic
 The following snippet shows how to configure this plugin with the File provider in TOML and YAML: 
 
 ```toml
-# Log Requests and Responses
 [http.middlewares]
-  [http.middlewares.gelf-logger.gelflog]
+  [http.middlewares.gelf-logger.traefik-gelf-plugin]
     gelfEndpoint = "127.0.0.1"
     gelfPort = 12202
     hostnameOverride = ""
@@ -62,12 +66,11 @@ The following snippet shows how to configure this plugin with the File provider 
 ```
 
 ```yaml
-# Log Requests and Responses
 http:
   middlewares:
     gelf-logger:
       plugin:
-        gelflog:
+        traefik-gelf-plugin:
           gelfEndpoint: "127.0.0.1"
           gelfPort: 12202
           hostnameOverride: ""
@@ -75,4 +78,33 @@ http:
           traceIdHeader: "X-TraceId-AV"
           emitRequestStart: true
           requestStartTimeHeader: "X-Request-Start"
+```
+
+## Applying Middleware
+You can apply the middleware on a case by case basis using the docker-compose.yml example above. However if you want to apply it to every request
+you can apply it to an entrypoint as follows:
+
+#### YAML
+```yaml
+entypoints:
+  websecure:
+    address: :443
+    http:
+      middlewares:
+        - gelf-logger@file
+```
+
+#### TOML
+```toml
+#TOML
+[entryPoints.websecure]
+  address = ":443"
+  [entryPoints.websecure.http]
+    middlewares = ["gelf-logger@file"]
+```
+
+#### CLI
+```
+--entrypoints.websecure.address=:443
+--entrypoints.websecure.http.middlewares=gelf-logger@file
 ```
