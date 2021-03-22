@@ -1,6 +1,6 @@
 module github.com/itninja04/traefik-gelf-plugin
 
-go 1.14
+go 1.16
 
 require (
 	github.com/kjk/betterguid v0.0.0-20170621091430-c442874ba63a
