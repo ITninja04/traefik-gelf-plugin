@@ -3,10 +3,11 @@ summary: Logs HTTP requests, optionally appends trace id and request start time 
 type: middleware
 import: github.com/itninja04/traefik-gelf-plugin
 testData:
+  debug: false
   gelfEndpoint: "127.0.0.1"
   gelfPort: 12202
   hostnameOverride: ""
   emitTraceId: true
-  traceIdHeader: "X-TraceId-AV"
+  traceIdHeader: "X-TraceId"
   emitRequestStart: true
   requestStartTimeHeader: "X-Request-Start"

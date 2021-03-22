@@ -15,7 +15,7 @@ services:
       - --providers.docker=true
       - --providers.docker.exposedbydefault=false
       - --experimental.plugins.gelflog.modulename=github.com/itninja04/traefik-gelf-plugin
-      - --experimental.plugins.gelflog.version=v0.1.9
+      - --experimental.plugins.gelflog.version=v0.1.91
     ports:
       - 80:80
       - 8080:8080
@@ -29,14 +29,15 @@ services:
       traefik.enable: true
       traefik.http.routers.whoami.rule: Host(`localhost`)
       traefik.http.routers.whoami.entrypoints: web
+      traefik.http.middlewares.gelf-logger.plugin.gelflog.debug: true
       traefik.http.middlewares.gelf-logger.plugin.gelflog.gelfEndpoint: "127.0.0.1"
       traefik.http.middlewares.gelf-logger.plugin.gelflog.gelfPort: 12202
       # set the Hostname Override if you want to change the hostname sent to your GELF endpoint
       traefik.http.middlewares.gelf-logger.plugin.gelflog.hostnameOverride: ""
       # default is true, set to false to stop sending a TraceId
       traefik.http.middlewares.gelf-logger.plugin.gelflog.emitTraceId: true
-      # default is X-TraceId-AV change this to whatever header name you want
-      traefik.http.middlewares.gelf-logger.plugin.gelflog.traceIdHeader: "X-TraceId-AV"
+      # default is X-TraceId change this to whatever header name you want
+      traefik.http.middlewares.gelf-logger.plugin.gelflog.traceIdHeader: "X-TraceId"
       # default is true, set to false to stop sending a Request Start timestamp
       traefik.http.middlewares.gelf-logger.plugin.gelflog.emitRequestStart: true
       # default is X-Request-Start change this to whatever header name you want
@@ -56,11 +57,12 @@ The following snippet shows how to configure this plugin with the File provider 
 ```toml
 [http.middlewares]
   [http.middlewares.gelf-logger.traefik-gelf-plugin]
+    debug = true
     gelfEndpoint = "127.0.0.1"
     gelfPort = 12202
     hostnameOverride = ""
     emitTraceId = true
-    traceIdHeader = "X-TraceId-AV"
+    traceIdHeader = "X-TraceId"
     emitRequestStart = true
     requestStartTimeHeader = "X-Request-Start"
 ```
@@ -71,11 +73,12 @@ http:
     gelf-logger:
       plugin:
         traefik-gelf-plugin:
+          debug: true
           gelfEndpoint: "127.0.0.1"
           gelfPort: 12202
           hostnameOverride: ""
           emitTraceId: true
-          traceIdHeader: "X-TraceId-AV"
+          traceIdHeader: "X-TraceId"
           emitRequestStart: true
           requestStartTimeHeader: "X-Request-Start"
 ```

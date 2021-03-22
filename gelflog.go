@@ -5,8 +5,10 @@ import (
 	"fmt"
 	"github.com/kjk/betterguid"
 	"gopkg.in/Graylog2/go-gelf.v2/gelf"
+	"log"
 	"net/http"
 	"os"
+	"reflect"
 	"time"
 )
 
@@ -19,15 +21,17 @@ type Config struct {
 	TraceIdHeader string `json:"traceIdHeader"`
 	EmitRequestStart bool `json:"emitRequestStart"`
 	RequestStartTimeHeader string `json:"requestStartTimeHeader"`
+	Debug bool `json:"debug,omitempty"`
 }
 
 // CreateConfig creates and initializes the plugin configuration.
 func CreateConfig() *Config {
 	return &Config{
 		EmitTraceId: true,
-		TraceIdHeader: "X-TraceId-AV",
+		TraceIdHeader: "X-TraceId",
 		EmitRequestStart: true,
 		RequestStartTimeHeader: "X-Request-Start",
+		Debug: false,
 	}
 }
 
@@ -63,6 +67,17 @@ func New(_ context.Context, next http.Handler, config *Config, name string) (htt
 		tLog.GelfHostname = config.HostnameOverride
 	}
 	tLog.GelfWriter, _ = gelf.NewUDPWriter(fmt.Sprintf("%s:%d", config.GelfEndpoint, config.GelfPort))
+	if config.Debug {
+		log.Println(fmt.Sprintf("Debug Logging Enabled"), config)
+		var configMap = map[string]interface{}{}
+		v := reflect.ValueOf(config)
+		typeOfS := v.Elem().Type()
+		for i := 0; i< v.Elem().NumField(); i++ {
+			configMap[typeOfS.Field(i).Name] = v.Elem().Field(i).Interface()
+		}
+		tLog.GelfWriter.WriteMessage(wrapMessage("Logger Initialized", "Logger successfully initialized", tLog.GelfHostname, configMap))
+		log.Println("Sent message to GELF Endpoint")
+	}
 	return tLog, nil
 }
 
@@ -88,7 +103,10 @@ func (h *GelfLog) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 		}
 		headerMap["Host"] = req.Host
 		message := wrapMessage(fmt.Sprintf("Request to %s", req.Host), fmt.Sprintf("Request to %s", req.Host), h.GelfHostname, headerMap)
-		h.GelfWriter.WriteMessage(message)
+		err := h.GelfWriter.WriteMessage(message)
+		if h.Config.Debug {
+			log.Println("Sent message to GELF Endpoint", err)
+		}
 	}
 	h.Next.ServeHTTP(rw, req)
 }

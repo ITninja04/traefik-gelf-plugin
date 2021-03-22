@@ -75,6 +75,41 @@ func TestHostnameOverride(t *testing.T) {
 		}
 	}
 }
+func TestDebug(t *testing.T) {
+	config := CreateConfig()
+	config.GelfEndpoint = "192.168.2.4"
+	config.GelfPort = 12203
+	config.Debug = true
+	config.HostnameOverride = "avimac01.av.local"
+	g, err := New(nil, &httpHandlerMock{}, config, "GelfLogger")
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+
+	req := httptest.NewRequest(http.MethodGet, "http://localhost/some/path", nil)
+	req.RemoteAddr = "4.0.0.0:34000"
+	req.Header.Add("X-Test-Redundant", "abc")
+	req.Header.Add("X-Test-Redundant", "123")
+	rw := httptest.NewRecorder()
+
+	g.ServeHTTP(rw, req)
+
+	if config.EmitTraceId {
+		traceHeader := req.Header.Get(config.TraceIdHeader)
+		if traceHeader == "" {
+			t.Fatal("trace id empty")
+		}
+	}
+
+	if config.EmitRequestStart {
+		reqStartHeader := req.Header.Get(config.RequestStartTimeHeader)
+		if reqStartHeader == "" {
+			t.Fatal("request start empty")
+		}
+	}
+}
 func TestBadConfig(t *testing.T) {
 	config := CreateConfig()
 
