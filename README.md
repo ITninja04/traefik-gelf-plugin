@@ -15,7 +15,7 @@ services:
       - --providers.docker=true
       - --providers.docker.exposedbydefault=false
       - --experimental.plugins.gelflog.modulename=github.com/itninja04/traefik-gelf-plugin
-      - --experimental.plugins.gelflog.version=v0.1.8
+      - --experimental.plugins.gelflog.version=v0.1.9
     ports:
       - 80:80
       - 8080:8080
