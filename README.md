@@ -14,7 +14,7 @@ services:
       - --entrypoints.web.address=:80
       - --providers.docker=true
       - --providers.docker.exposedbydefault=false
-      - --experimental.plugins.gelflog.modulename=github.com/itninja04/plugin-gelflog
+      - --experimental.plugins.gelflog.modulename=github.com/itninja04/traefik-gelf-plugin
       - --experimental.plugins.gelflog.version=v0.1.6
     ports:
       - 80:80
