@@ -1,0 +1,12 @@
+displayName: Gelf Logger
+summary: Logs HTTP requests, optionally appends trace id and request start time headers.
+type: middleware
+import: github.com/itninja04/plugin-gelflog
+testData:
+  gelfEndpoint: "127.0.0.1"
+  gelfPort: 12202
+  hostnameOverride: ""
+  emitTraceId: true
+  traceIdHeader: "X-TraceId-AV"
+  emitRequestStart: true
+  requestStartTimeHeader: "X-Request-Start"

@@ -1,0 +1,8 @@
+# github.com/Graylog2/go-gelf v0.0.0-20170811154226-7ebf4f536d8f
+## explicit
+# github.com/kjk/betterguid v0.0.0-20170621091430-c442874ba63a
+## explicit
+github.com/kjk/betterguid
+# gopkg.in/Graylog2/go-gelf.v2 v2.0.0-20191017102106-1550ee647df0
+## explicit
+gopkg.in/Graylog2/go-gelf.v2/gelf
