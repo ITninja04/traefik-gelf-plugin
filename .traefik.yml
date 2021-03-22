@@ -1,7 +1,7 @@
 displayName: Gelf Logger
 summary: Logs HTTP requests, optionally appends trace id and request start time headers.
 type: middleware
-import: github.com/itninja04/plugin-gelflog
+import: github.com/itninja04/traefik-gelf-plugin
 testData:
   gelfEndpoint: "127.0.0.1"
   gelfPort: 12202

@@ -1,4 +1,4 @@
-module github.com/itninja04/plugin-gelflog
+module github.com/itninja04/traefik-gelf-plugin
 
 go 1.14
 
