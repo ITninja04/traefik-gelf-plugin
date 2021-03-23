@@ -2,6 +2,7 @@ package traefik_gelf_plugin
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"github.com/kjk/betterguid"
 	"gopkg.in/Graylog2/go-gelf.v2/gelf"
@@ -44,11 +45,19 @@ type GelfLog struct {
 }
 
 // New creates and returns a plugin instance.
-func New(_ context.Context, next http.Handler, config *Config, name string) (http.Handler, error) {
+func New(ctx context.Context, next http.Handler, config *Config, name string) (http.Handler, error) {
+	log.Println("DEV MODE ENABLED!")
 	tLog := &GelfLog{
 		Name: name,
 		Next: next,
 		Config: config,
+	}
+	s, err := json.MarshalIndent(ctx, "", "\t")
+	log.Println("Plugin Context")
+	if err != nil {
+		log.Println("Error printing context", err)
+	}else {
+		log.Println(string(s))
 	}
 	if config == nil {
 		return nil, fmt.Errorf("config can not be empty")
@@ -106,6 +115,21 @@ func (h *GelfLog) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 		err := h.GelfWriter.WriteMessage(message)
 		if h.Config.Debug {
 			log.Println("Sent message to GELF Endpoint", err)
+			log.Println("Request Context")
+			s, err := json.MarshalIndent(req.Context(), "", "\t")
+			s1, err1 := json.MarshalIndent(context.Background(), "", "\t")
+
+			if err != nil {
+				log.Println("Error printing context", err)
+			}else {
+				log.Println(string(s))
+			}
+			log.Println("Background Context")
+			if err1 != nil {
+				log.Println("Error printing background context", err)
+			}else {
+				log.Println(string(s1))
+			}
 		}
 	}
 	h.Next.ServeHTTP(rw, req)
